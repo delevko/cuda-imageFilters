@@ -10,5 +10,5 @@
 </br></br>
 
 <p>Usage: </br>Put the image(.png format) in same directory as filter.cpp</p>
-<code>./executable &lt;srcFilename\> &lt;filternumber> &lt;dstFilename></code>
+<code>./executable &lt;srcFilename> &lt;filterNumber> &lt;dstFilename></code>
 <p>Look for filtered image in /results folder</p>
