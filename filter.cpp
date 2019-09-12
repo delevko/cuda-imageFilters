@@ -113,6 +113,7 @@ int main(int argc, char** argv) {
             args[0]=&newImage; args[1]=&image.width; args[2]=&image.height;
             cuLaunchKernel(function, blocks_per_grid, 1, 1, threads_per_block, 1, 1, 0, 0, args, 0);
             break;
+
         case 1:
             printf("Negative\n");
             res = cuModuleGetFunction(&function, cuModule, "Negative");
@@ -126,6 +127,7 @@ int main(int argc, char** argv) {
             args[0]=&oldImage; args[1]=&newImage; args[2]=&image.width; args[3]=&image.height;
             cuLaunchKernel(function, blocks_per_grid, 1, 1, threads_per_block, 1, 1, 0, 0, args, 0);
             break;
+
         case 2:
             printf("Normalization\n");
             res = cuModuleGetFunction(&function, cuModule, "Normalization");
