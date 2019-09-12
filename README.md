@@ -3,9 +3,9 @@
 </br></br>
 
 <p>Three available filters by far:
-</br>Black and White - 0
-</br>Negative - 1
-</br>Normalization - 2
+</br>Black and White - 1
+</br>Negative - 2
+</br>Normalization - 3
 </p>
 </br></br>
 

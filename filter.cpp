@@ -1,7 +1,10 @@
 #include "cuda.h"
 #include "lodepng.h" // http://lodev.org/lodepng/
-#include <cstdio>
 #include <vector>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
 using namespace std;
 
 struct RGB {
@@ -30,14 +33,44 @@ public:
     }
 };
 
+bool validateInput(std::string sIn, int filter, std::string sOut)
+{
+    if(filter <= 0 || filter >= 4)
+    {
+        printf("Only three filters available:\n");
+        printf("1 - Black and White\n");
+        printf("2 - Negative\n");
+        printf("3 - Normalization\n");
+        return false;
+    }
+
+    if(sIn.size() < 5 || sOut.size() < 5 ||
+        sIn.substr(sIn.size()-4) != ".png" ||
+        sOut.substr(sOut.size()-4) != ".png")
+    {
+        printf("Both input and output must be in .png format\n");
+        return false;
+    }
+
+    return true;
+}
+
+
 unsigned error;
 void** args;
 int size, threads_per_block, blocks_per_grid;
 
-int filter = 1;  //BlackWhite 0, Negative 1, Normalization 2
-const char *fName = "sample.png";
+int main(int argc, char** argv) {
+	if(argc != 4 || !validateInput(argv[1], atoi(argv[2]), argv[3]) )
+    {
+        printf("Usage: ./executable <srcFilename.png> <filterNumber> <dstFilename.png>\n");
+        return -1;
+    }
 
-int main() {
+	int filter = atoi(argv[2]);
+	const char *fInName = argv[1];
+	const char *fOutName = argv[3];
+
     cuInit(0);
     CUdevice cuDevice;
     CUresult res = cuDeviceGet(&cuDevice, 0);
@@ -51,10 +84,10 @@ int main() {
     res = cuModuleLoad(&cuModule, "filter.ptx");
     if(res != CUDA_SUCCESS) { printf("Cannot load module\n"); exit(-1); }
 
-    printf("loadImage(fName)\n");
+    printf("loadImage %s\n", fInName);
     vector<unsigned char> img;
     unsigned int width, height;
-    error = lodepng::decode(img, width, height, fName);
+    error = lodepng::decode(img, width, height, fInName);
     if(error != 0) {
         printf("error %u: %s\n", error, lodepng_error_text(error));
     }
@@ -108,12 +141,13 @@ int main() {
     }
     cuMemcpyDtoH(image.pixels, newImage, size);
 
-    printf("saveImage(\"output.png\", image)\n");
-    error = lodepng_encode32_file("output.png", reinterpret_cast<const unsigned char*>(image.pixels), image.width, image.height);
+    printf("saveImage(%s, image)\n", fOutName);
+    error = lodepng_encode32_file(fOutName, reinterpret_cast<const unsigned char*>(image.pixels), image.width, image.height);
     if(error != 0) {
         printf("error %u: %s\n", error, lodepng_error_text(error));
     }
-    printf("success\n");
+    
+	printf("success\n");
     
     return 0;
 }
